@@ -1,19 +1,30 @@
 import React, { useState, useEffect } from "react";
+import { Image } from "react-native";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
+
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  FontAwesome5,
+} from "@expo/vector-icons";
+
 import HomeScreen from "./containers/HomeScreen";
 import ProfileScreen from "./containers/ProfileScreen";
 import SignInScreen from "./containers/SignInScreen";
 import SignUpScreen from "./containers/SignUpScreen";
-import SettingsScreen from "./containers/SettingsScreen";
+import RoomDetailScreen from "./containers/RoomDetailScreen";
+import AroundScreen from "./containers/AroundScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 export default function App() {
+  //
   const [isLoading, setIsLoading] = useState(true);
   const [userToken, setUserToken] = useState(null);
 
@@ -25,6 +36,13 @@ export default function App() {
     }
 
     setUserToken(token);
+  };
+  const StoreId = async (id) => {
+    try {
+      await AsyncStorage.setItem("id", id);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
@@ -48,10 +66,10 @@ export default function App() {
         // No token found, user isn't signed in
         <Stack.Navigator>
           <Stack.Screen name="SignIn" options={{ animationEnabled: false }}>
-            {() => <SignInScreen setToken={setToken} />}
+            {() => <SignInScreen setToken={setToken} StoreId={StoreId} />}
           </Stack.Screen>
           <Stack.Screen name="SignUp">
-            {() => <SignUpScreen setToken={setToken} />}
+            {() => <SignUpScreen setToken={setToken} StoreId={StoreId} />}
           </Stack.Screen>
         </Stack.Navigator>
       ) : (
@@ -82,8 +100,18 @@ export default function App() {
                       <Stack.Screen
                         name="Home"
                         options={{
-                          title: "My App",
-                          headerStyle: { backgroundColor: "red" },
+                          headerStyle: { flexDirection: "column" },
+                          title: (
+                            <Image
+                              source={require("./assets/img/logo-red.jpg")}
+                              style={{
+                                height: "100%",
+                                width: 90,
+                              }}
+                              resizeMode="contain"
+                            />
+                          ),
+                          headerStyle: { backgroundColor: "#FE595E" },
                           headerTitleStyle: { color: "white" },
                         }}
                       >
@@ -91,23 +119,28 @@ export default function App() {
                       </Stack.Screen>
 
                       <Stack.Screen
-                        name="Profile"
+                        name="RoomDetail"
                         options={{
-                          title: "User Profile",
+                          title: (
+                            <Image
+                              source={require("./assets/img/logo-blanc.png")}
+                              style={{ height: "100%", resizeMode: "contain" }}
+                            />
+                          ),
                         }}
                       >
-                        {() => <ProfileScreen />}
+                        {() => <RoomDetailScreen />}
                       </Stack.Screen>
                     </Stack.Navigator>
                   )}
                 </Tab.Screen>
                 <Tab.Screen
-                  name="Settings"
+                  name="Around"
                   options={{
-                    tabBarLabel: "Settings",
+                    tabBarLabel: "Around",
                     tabBarIcon: ({ color, size }) => (
-                      <Ionicons
-                        name={"ios-options"}
+                      <MaterialCommunityIcons
+                        name="map-marker-multiple-outline"
                         size={size}
                         color={color}
                       />
@@ -117,10 +150,53 @@ export default function App() {
                   {() => (
                     <Stack.Navigator>
                       <Stack.Screen
-                        name="Settings"
-                        options={{ title: "Settings", tabBarLabel: "Settings" }}
+                        name="Around"
+                        options={{
+                          title: (
+                            <Image
+                              source={require("./assets/img/logo-blanc.png")}
+                              style={{ height: "100%", resizeMode: "contain" }}
+                            />
+                          ),
+                          tabBarLabel: "Around",
+                        }}
                       >
-                        {() => <SettingsScreen setToken={setToken} />}
+                        {() => <AroundScreen setToken={setToken} />}
+                      </Stack.Screen>
+                    </Stack.Navigator>
+                  )}
+                </Tab.Screen>
+
+                <Tab.Screen
+                  name="Profile"
+                  options={{
+                    tabBarLabel: "My profile",
+                    tabBarIcon: ({ color, size }) => (
+                      <FontAwesome5 name="user-tie" size={size} color={color} />
+                    ),
+                  }}
+                >
+                  {() => (
+                    <Stack.Navigator>
+                      <Stack.Screen
+                        name="Profile"
+                        options={{
+                          title: (
+                            <Image
+                              source={require("./assets/img/logo-blanc.png")}
+                              style={{ height: "100%", resizeMode: "contain" }}
+                            />
+                          ),
+                          tabBarLabel: "My profile",
+                        }}
+                      >
+                        {(props) => (
+                          <ProfileScreen
+                            {...props}
+                            setToken={setToken}
+                            userToken={userToken}
+                          />
+                        )}
                       </Stack.Screen>
                     </Stack.Navigator>
                   )}
